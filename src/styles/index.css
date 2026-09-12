@@ -38,6 +38,27 @@ button:focus-visible {
   outline-offset: 3px;
 }
 
+/* ---------- MICRO CURSOR DOT ---------- */
+/* Tiny accent dot that follows the pointer. Hidden by default,
+   shown only once the mouse moves (see components/Cursor.jsx). */
+.cursor-dot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 200;
+  will-change: transform;
+}
+
+.cursor-dot.is-on {
+  opacity: 0.45;
+}
+
 .section {
   padding: var(--section-gap) clamp(1.25rem, 5vw, 4.5rem);
   scroll-margin-top: 4rem;
@@ -98,23 +119,53 @@ button:focus-visible {
 }
 
 .nav__link {
+  position: relative;
   font-family: var(--mono);
   font-size: 0.85rem;
   line-height: 1;
   color: var(--text-secondary);
-  transition: color 0.25s ease, letter-spacing 0.25s ease;
-  padding: 0.5rem 0.125rem;
+  transition: color 0.25s ease;
+  padding: 0.6rem 0.125rem;
+}
+
+/* underline grows from the left on hover and stays for the active section */
+.nav__link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0.2rem;
+  height: 1px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .nav__link:hover {
   color: var(--text);
-  letter-spacing: 0.04em;
 }
 
 .nav__link.is-active {
   color: var(--text);
-  border-bottom: 2px solid var(--accent);
-  padding-bottom: 2px;
+}
+
+.nav__link:hover::after,
+.nav__link.is-active::after {
+  transform: scaleX(1);
+}
+
+/* thin accent line under the nav that fills with scroll progress */
+.nav__progress {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left center;
+  pointer-events: none;
 }
 
 /* ---------- INTRO ---------- */
@@ -142,7 +193,13 @@ button:focus-visible {
   margin: 0.4rem 0 0.25rem;
 }
 
-/* the typewriter-style blinking cursor after the name */
+/* hero name slips down and fades away as you scroll past the first screen */
+.intro__name h1[data-scrub-hero] {
+  transform: translateY(calc(7vh * var(--scrub)));
+  opacity: calc(1 - 0.8 * var(--scrub));
+}
+
+/* the typewriter caret: hidden until typing starts, then blinks */
 .intro__cursor {
   display: inline-block;
   width: 0.1em;
@@ -150,12 +207,36 @@ button:focus-visible {
   margin-left: 0.05em;
   background: var(--accent);
   font-size: inherit;
+}
+
+.intro__cursor:not(.intro__cursor--show) {
+  opacity: 0;
+}
+
+.intro__cursor--show {
   animation: blink 1.15s steps(1) infinite;
 }
 
 @keyframes blink {
   50% {
     opacity: 0;
+  }
+}
+
+/* each freshly typed character eases in instead of popping */
+.js .intro__typed-char {
+  display: inline-block;
+  animation: char-in 0.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes char-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.18em);
+  }
+  to {
+    opacity: 1;
+    transform: none;
   }
 }
 
@@ -213,6 +294,82 @@ button:focus-visible {
   100% {
     transform: translateY(100%);
   }
+}
+
+/* intro photo — editorial offset frame */
+.intro__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: clamp(2rem, 6vw, 5rem);
+  width: 100%;
+  margin-top: clamp(1.75rem, 5vh, 3.25rem);
+}
+
+.intro__info {
+  min-width: 0;
+}
+
+.intro__photo {
+  margin: 0;
+  width: clamp(170px, 21vw, 290px);
+  align-self: end;
+}
+
+/* wrapper carries the scroll-scrub movement */
+.intro__photo-move {
+  position: relative;
+  --scrub: 0;
+}
+
+/* ink-colored frame that the photo bleeds out of */
+.intro__photo-move::before {
+  content: '';
+  position: absolute;
+  top: 0.9rem;
+  left: -0.9rem;
+  right: 0.9rem;
+  bottom: -0.9rem;
+  border: 1px solid var(--accent);
+}
+
+.intro__photo-move img {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--text);
+  filter: grayscale(28%) sepia(10%) contrast(1.02);
+  transition:
+    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.5s ease;
+}
+
+/* small vermilion corner mark, travels on hover */
+.intro__photo-move::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0.6rem;
+  height: 0.6rem;
+  background: var(--accent);
+  z-index: 1;
+  transition: transform 0.4s ease;
+}
+
+.intro__photo:hover .intro__photo-move img {
+  transform: translateY(-6px);
+  filter: grayscale(0%) sepia(0%) contrast(1);
+}
+
+.intro__photo:hover .intro__photo-move::after {
+  transform: translate(-50%, -50%);
+}
+
+/* photo drifts up faster than the name while scrolling away (subtle parallax) */
+.intro__photo-move[data-scrub-hero] {
+  transform: translateY(calc(-8vh * var(--scrub)));
 }
 
 /* ---------- ABOUT ---------- */
@@ -287,12 +444,27 @@ button:focus-visible {
 }
 
 .project {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 0.9rem;
   padding: clamp(2.25rem, 5vw, 3.75rem) 0;
   border-bottom: 1px solid var(--border);
   transition: background 0.35s ease;
+}
+
+/* thin accent line sweeps across the top of the entry on hover */
+.project::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .project:last-child {
@@ -303,6 +475,10 @@ button:focus-visible {
   background: rgba(197, 67, 38, 0.05);
 }
 
+.project:hover::after {
+  transform: scaleX(1);
+}
+
 .project__top {
   display: flex;
   justify-content: space-between;
@@ -311,8 +487,15 @@ button:focus-visible {
 }
 
 .project__num {
+  display: inline-block;
   font-size: 0.85rem;
   color: var(--text-secondary);
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.project:hover .project__num {
+  transform: translateX(0.4rem);
+  color: var(--accent);
 }
 
 .project__links {
@@ -328,6 +511,17 @@ button:focus-visible {
 
 .project__links a:hover {
   color: var(--accent);
+}
+
+/* the little ↗ arrows nudge right on hover */
+.project__link-arrow {
+  display: inline-block;
+  margin-left: 0.35rem;
+  transition: transform 0.28s ease;
+}
+
+.project__links a:hover .project__link-arrow {
+  transform: translateX(0.3rem);
 }
 
 .project__name {
@@ -363,6 +557,12 @@ button:focus-visible {
   padding: 0.35rem 0.75rem;
   border-radius: 2px;
   color: var(--text);
+  transition: border-color 0.25s ease, color 0.25s ease, transform 0.25s ease;
+}
+
+.project:hover .project__tags li {
+  border-color: var(--accent);
+  transform: translateY(-2px);
 }
 
 /* ---------- STACK ---------- */
@@ -384,10 +584,24 @@ button:focus-visible {
 }
 
 .stack__items {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+/* each technology rises in with a small stagger (delays set via --reveal-delay) */
+.stack__item {
+  display: inline-block;
   font-size: clamp(1.35rem, 4vw, 2.4rem);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.01em;
+}
+
+.stack__item + .stack__item::before {
+  content: '·';
+  margin: 0 0.65rem;
+  color: var(--text-secondary);
+  font-weight: 400;
 }
 
 .stack__note {
@@ -422,6 +636,11 @@ button:focus-visible {
   text-transform: uppercase;
   line-height: 1.02;
   letter-spacing: -0.02em;
+}
+
+/* the two title lines reveal one after the other */
+.contact__title-line {
+  display: block;
 }
 
 .contact__links {
@@ -491,13 +710,30 @@ button:focus-visible {
   color: var(--text-secondary);
 }
 
+/* ---------- SCROLL-SCRUB ---------- */
+/* Values of --scrub are written per-frame by the useScrub hook. */
+
+[data-scrub-hero] {
+  --scrub: 0;
+}
+
+/* Section headings rise ~20px and drift in gently as they travel through
+   the viewport. Scoped to .js so content stays static without it. */
+.js [data-scrub] {
+  --scrub: 0;
+  opacity: calc(1.85 * var(--scrub));
+  transform:
+    translateY(calc(1.25rem * (1 - var(--scrub))))
+    translateX(calc(-1.5vw * (1 - var(--scrub))));
+}
+
 /* ---------- REVEAL-ON-SCROLL ---------- */
 
 /* Reveal only applies when JS is active (html.js),
    so content is never hidden without it. */
 .js .reveal {
   opacity: 0;
-  transform: translateY(26px);
+  transform: translateY(20px);
   transition:
     opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay, 0ms),
     transform 0.7s cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay, 0ms);
@@ -509,9 +745,54 @@ button:focus-visible {
   transform: none;
 }
 
+/* ---------- REDUCED MOTION ---------- */
+/* When reduced motion is requested, drop every decorative animation and
+   make sure nothing stays hidden. The duration override lives in reset.css;
+   these rules guarantee content is visible even before JS runs. */
+@media (prefers-reduced-motion: reduce) {
+  .js .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  /* typing is bypassed in JS; keep the caret from blinking */
+  .intro__cursor--show {
+    animation: none;
+  }
+
+  /* scroll-scrubbed elements settle at their fully visible, static spot */
+  [data-scrub] {
+    --scrub: 1 !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  [data-scrub-hero] {
+    --scrub: 0 !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .cursor-dot {
+    display: none;
+  }
+}
+
 /* ---------- RESPONSIVE ---------- */
 
 @media (max-width: 900px) {
+  .intro__grid {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .intro__photo {
+    width: min(230px, 64vw);
+    align-self: start;
+    margin-top: 1rem;
+  }
+
   .about__grid {
     grid-template-columns: 1fr;
   }

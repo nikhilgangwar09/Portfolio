@@ -24,14 +24,20 @@ export default function Contact() {
 
   return (
     <section id="contact" className="section contact" ref={ref}>
-      <div
-        className={`contact__title reveal ${isVisible ? 'is-visible' : ''}`}
-        style={{ '--reveal-delay': '0ms' }}
-      >
+      <div className="contact__title" data-scrub>
         <h2>
-          HAVE AN IDEA?
-          <br />
-          LET’S BUILD IT.
+          <span
+            className={`contact__title-line reveal ${isVisible ? 'is-visible' : ''}`}
+            style={{ '--reveal-delay': '0ms' }}
+          >
+            HAVE AN IDEA?
+          </span>
+          <span
+            className={`contact__title-line reveal ${isVisible ? 'is-visible' : ''}`}
+            style={{ '--reveal-delay': '150ms' }}
+          >
+            LET’S BUILD IT.
+          </span>
         </h2>
       </div>
 

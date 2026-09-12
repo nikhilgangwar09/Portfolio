@@ -20,26 +20,31 @@ export default function Stack() {
 
   return (
     <section id="stack" className="section stack" ref={ref}>
-      <div className="section__head">
+      <div className="section__head" data-scrub>
         <span className="section__num mono">04</span>
-        <div className={`reveal ${isVisible ? 'is-visible' : ''}`}>
-          <h2>WHAT I USE</h2>
-        </div>
+        <h2>WHAT I USE</h2>
       </div>
 
       <div className="stack__list">
         {stack.map((group, i) => (
-          <div
-            className="stack__group"
-            key={group.category}
-          >
-            <div
-              className={`reveal ${isVisible ? 'is-visible' : ''}`}
+          <div className="stack__group" key={group.category}>
+            <p
+              className={`stack__category mono reveal ${isVisible ? 'is-visible' : ''}`}
               style={{ '--reveal-delay': `${i * 120}ms` }}
             >
-              <p className="stack__category mono">{group.category}</p>
-              <p className="stack__items">{group.items.join(' · ')}</p>
-            </div>
+              {group.category}
+            </p>
+            <ul className="stack__items">
+              {group.items.map((item, j) => (
+                <li
+                  className={`stack__item reveal ${isVisible ? 'is-visible' : ''}`}
+                  style={{ '--reveal-delay': `${i * 120 + 100 + j * 80}ms` }}
+                  key={item}
+                >
+                  {item}
+                </li>
+              ))}
+            </ul>
           </div>
         ))}
       </div>

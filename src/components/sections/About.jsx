@@ -11,11 +11,9 @@ export default function About() {
 
   return (
     <section id="about" className="section about" ref={ref}>
-      <div className="section__head">
+      <div className="section__head" data-scrub>
         <span className="section__num mono">02</span>
-        <div className={`reveal ${isVisible ? 'is-visible' : ''}`}>
-          <h2>WHO AM I?</h2>
-        </div>
+        <h2>WHO AM I?</h2>
       </div>
 
       <div className="about__grid">

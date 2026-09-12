@@ -10,6 +10,7 @@ const sections = [
 
 export default function Navigation() {
   const [active, setActive] = useState('intro')
+  const [progress, setProgress] = useState(0)
 
   useEffect(() => {
     const onScroll = () => {
@@ -27,6 +28,28 @@ export default function Navigation() {
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  // Thin accent line under the nav that fills with page scroll progress.
+  useEffect(() => {
+    let raf = 0
+    const update = () => {
+      raf = 0
+      const max = document.documentElement.scrollHeight - window.innerHeight
+      setProgress(max > 0 ? window.scrollY / max : 0)
+    }
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(update)
+    }
+
+    update()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll, { passive: true })
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+      if (raf) cancelAnimationFrame(raf)
+    }
   }, [])
 
   return (
@@ -48,6 +71,11 @@ export default function Navigation() {
           ))}
         </ul>
       </nav>
+      <span
+        className="nav__progress"
+        aria-hidden="true"
+        style={{ transform: `scaleX(${progress})` }}
+      />
     </header>
   )
 }

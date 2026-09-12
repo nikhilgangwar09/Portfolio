@@ -6,11 +6,9 @@ export default function Projects() {
 
   return (
     <section id="projects" className="section projects" ref={ref}>
-      <div className="section__head">
+      <div className="section__head" data-scrub>
         <span className="section__num mono">03</span>
-        <div className={`reveal ${isVisible ? 'is-visible' : ''}`}>
-          <h2>THINGS I BUILT</h2>
-        </div>
+        <h2>THINGS I BUILT</h2>
       </div>
 
       <div className="projects__list">
@@ -23,8 +21,14 @@ export default function Projects() {
             <div className="project__top">
               <span className="project__num mono">/{p.number}</span>
               <div className="project__links mono">
-                <a href={p.liveUrl}>VIEW PROJECT ↗</a>
-                <a href={p.githubUrl}>GITHUB ↗</a>
+                <a href={p.liveUrl}>
+                  VIEW PROJECT
+                  <span className="project__link-arrow" aria-hidden="true">↗</span>
+                </a>
+                <a href={p.githubUrl}>
+                  GITHUB
+                  <span className="project__link-arrow" aria-hidden="true">↗</span>
+                </a>
               </div>
             </div>
 
